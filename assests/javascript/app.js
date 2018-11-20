@@ -17,7 +17,7 @@ $(".btn").on("click", function(event) {
 
     var trainNameVar = $("#trainNameId").val().trim();
     var destinationVar =$("#destinationId").val().trim();
-    var firstTrainTimeVar = $("#firstTrainTimeId").val().trim();
+    var firstTrainTimeVar = moment($("#firstTrainTimeId").val().trim(), "HH:mm").format("X");
     var frequencyVar = $("#frequencyId").val().trim();
 
     var newTrain = {
@@ -37,11 +37,20 @@ database.ref().on("child_added", function(snapshot) {
     var destinationVar = snapshot.val().destination;
     var firstTrainTimeVar = snapshot.val().firstTimeTrain;
     var frequencyVar = snapshot.val().frequency;
+    var firstTimeConverted = moment(firstTrainTimeVar, "HH:mm").subtract(1, "years");
+    var differenceTimeVar = moment().diff(moment(firstTimeConverted), "minutes");
+    var timeRemainder = differenceTimeVar % frequencyVar;
+    var nextArrrivalTimeVar = frequencyVar - timeRemainder;
+    var nextTrainVar = moment().add(nextArrrivalTimeVar, "minutes");
+    var nextTrainConvertedVar = moment(nextTrainVar).format("hh:mm A");
 
-    
+    var newRow = $("<tr>").append(
+        $("<td>").text(trainNameVar),
+        $("<td>").text(destinationVar),
+        $("<td>").text(frequencyVar),
+        $("<td>").text(nextTrainConvertedVar),
+        $("<td>").text(nextArrrivalTimeVar)        
+    )
+    $(".table > tbody").append(newRow);
 
-}
-
-
-
-
+})
